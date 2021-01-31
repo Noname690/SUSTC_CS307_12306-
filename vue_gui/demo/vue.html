@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+<style>
+        *{
+            padding:0px;
+            margin:0px;
+        }
+        a{color: #d7aeff
+        }
+        body{
+            background:url(../demo/mohu.jpg) no-repeat;background-size:100% 100%;-moz-background-size:100% 100%;
+            background-attachment:fixed;
+            height:900px;
+            font-family:Arial, Helvetica, sans-serif;
+            font-size:13px;
+        }
+        img{
+            border:0;
+        }
+        .lg{width:757px; height:468px; margin:100px auto; background:url(../demo/timg.jpg) no-repeat;background-size:100% 100%;-moz-background-size:100% 100%;}
+        .lg_top{ height:200px; width:468px;}
+        .lg_main{width:400px; height:180px; margin:0 25px;}
+        .lg_m_1{
+            width:290px;
+            height:100px;
+            padding:60px 55px 20px 55px;
+        }
+        .ur{
+            height:37px;
+            border:0;
+            color:#666;
+            width:236px;
+            margin:4px 28px;
+            background:url(../demo/user.png) no-repeat;
+            background-size:100% 100%;-moz-background-size:100% 100%;
+            padding-left:40px;
+            font-size:16pt;
+            vertical-align:middle;
+            horiz-align: center;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+        .ding{
+            height: 50px;
+        }
+        .pw{
+            height:37px;
+            border:0;
+            color:#666;
+            width:236px;
+            margin:4px 28px;
+            background:url(../demo/pw.png) no-repeat;
+            background-size:100% 100%;-moz-background-size:100% 100%;
+            padding-left:40px;
+            font-size:16pt;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+        .bn{width:165px; height:72px; position:absolute; left:310px; top:510px; background:url(../demo/mafei.png) no-repeat; background-size:100% 100%;-moz-background-size:100% 100%;border:0; display:block; font-size:18px; color:#FFF; font-family:Arial, Helvetica, sans-serif; font-weight:bolder;}
+        .br{width:165px; height:72px; position:absolute; left:500px; top:510px; background:url(../demo/mafei.png) no-repeat; background-size:100% 100%;-moz-background-size:100% 100%;border:0; display:block; font-size:18px; color:#FFF; font-family:Arial, Helvetica, sans-serif; font-weight:bolder;}
+        .lg_foot{
+            height:80px;
+            width:330px;
+            padding: 6px 68px 0 68px;
+        }
+        .table{
+            width: 1200px;
+            border:2px solid rgba(38, 61, 61, 0.77);
+            text-align: center;
+            margin:0 auto;
+        }
+        .thead{
+            background-color: rgba(49, 124, 89, 0.4);
+            color: white;
+        }.text{
+                     outline-style: none ;
+                     border: 1px solid #ccc;
+                     border-radius: 3px;
+                     padding: 13px 14px;
+                     font-size: 14px;
+                     font-weight: 700;
+                     font-family: "STKaiti";
+         }
+        .button{
+            color: white;
+            background: rgba(41, 49, 45, 0.19);
+            height: 58px;
+            border: 2px solid rgb(241, 253, 253);
+            font: 500 22px "Raleway", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            padding: 0 21px;
+            transition: color 0.1s linear, background-color 0.1s linear, border-color 0.1s linear;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+        input:focus{
+            border-color: #66afe9;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+            box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
+        }
+    </style>
+
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+<div class="ding" ></div>
+<div id="app">
+    <!--登陆界面-->
+<div class="lg" v-if="is_user==0">
+        <div class="lg_top" ></div>
+        <div class="lg_main" >
+            <div class="lg_m_1">
+
+                <input name="username" v-model="user_id" class="ur" />
+                <input name="password"type="password" v-model="password" class="pw" />
+
+            </div>
+        </div>
+        <div class="lg_foot" >
+            <input type="button" value="LOGIN" class="bn" @click="login"  />
+            <input type="button" value="REGISTER" class="br" @click="register"  />
+        </div>
+</div>
+    <!--用户界面-->
+    <div v-if="is_user==1">
+        <input type="button" value="退出登录" @click="return_to_login" class="button" style="position:absolute; left:100px; top:50px;">
+        <input type="button" value="查询列车" @click="chache" class="button" style="position:absolute; left:300px; top:50px;">
+        <input type="button" value="查询订单" @click="chadanzi" class="button" style="position:absolute; left:500px; top:50px;">
+        <!--查询列车-->
+           <div v-if="mode==1">
+            <input name="start_station" v-model="start_station" class="text" style="position:absolute; left:100px; top:150px;">
+            <input name="stop_station"  v-model="stop_station" class="text" style="position:absolute; left:350px; top:150px;">
+               <input name="way"  v-model="way" class="text" style="position:absolute; left:600px; top:150px;">
+               <input type="button" value="进行查询" @click="find_train" class="button" style="position:absolute; left:850px; top:140px;">
+               <div>
+                   <input name="train_num" v-model="train_num" class="text" style="position:absolute; left:100px; top:250px;">
+                   <input type="button" value="查询详细信息" @click="train_detail();fixa();fixb()" class="button" style="position:absolute; left:350px; top:245px;">
+               </div>
+               <table class="table" style="position:absolute; left:50px; top:360px;">
+                   <thead class="thead">
+                   <tr>
+                       <td>列车名</td>
+                       <td>列车类型</td>
+                       <td>出发站</td>
+                       <td>出发时间</td>
+                       <td>到达站</td>
+                       <td>到达时间</td>
+                   </tr>
+                   </thead>
+                   <tbody>
+                   <tr v-for='p in trains'>
+                       <td>{{p.name}}</td>
+                       <td>{{p.type}}</td>
+                       <td>{{p.dname}}</td>
+                       <td>{{p.dtime}}</td>
+                       <td>{{p.aname}}</td>
+                       <td>{{p.atime}}</td>
+                   </tr>
+                   </tbody>
+               </table>
+
+           </div >
+        <!--详细信息-->
+        <div v-if="mode==3">
+            <input name="seat_type"  v-model="seat_type" class="text" style="position:absolute; left:100px; top:155px;">
+            <input type="button" value="进行购买" @click="buy" class="button" style="position:absolute; left:350px; top:150px;">
+            <input type="button" value="放弃购买" @click="train_detail" class="button" style="position:absolute; left:520px; top:150px;">
+            <table class="table" style="position:absolute; left:50px; top:250px;">
+                <thead class="thead">
+                <tr>
+                    <td>列车名</td>
+                    <td>始发站</td>
+                    <td>到达站</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr >
+                    <td>{{detail[0].train}}</td>
+                    <td>{{start_station}}</td>
+                    <td>{{stop_station}}</td>
+                </tr>
+                </tbody>
+            </table>
+            <table class="table" style="position:absolute; left:50px; top:300px;">
+                <thead class="thead">
+                <tr>
+                    <td>余票类型</td>
+                    <td>价格</td>
+                    <td>剩余量</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>商务座</td>
+                    <td>{{detail[0].price1}}</td>
+                    <td>{{detail[0].num1}}</td>
+                </tr>
+                <tr>
+                    <td>一等座</td>
+                    <td>{{detail[0].price2}}</td>
+                    <td>{{detail[0].num2}}</td>
+                </tr>
+                <tr>
+                    <td>二等座</td>
+                    <td>{{detail[0].price3}}</td>
+                    <td>{{detail[0].num3}}</td>
+                </tr>
+                </tbody>
+            </table>
+            <table class="table" style="position:absolute; left:50px; top:380px;">
+                <thead class="thead">
+                <tr>
+                    <td>列车线路</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{detail[0].line}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div >
+        <!--查询订单-->
+           <div v-if="mode==2">
+               <input name="删除的订单号" v-model="delete_num" class="text" style="position:absolute; left:100px; top:165px;">
+               <input type="button" value="进行退订" @click="delete_order" class="button" style="position:absolute; left:350px; top:150px;">
+               <table class="table" style="position:absolute; left:50px; top:250px;">
+                   <thead class="thead">
+                   <tr>
+                       <td>订单号</td>
+                       <td>价格</td>
+                       <td>创建日期</td>
+                       <td>列车车次</td>
+                       <td>始发站</td>
+                       <td>到达站</td>
+                       <td>座位类型</td>
+                   </tr>
+                   </thead>
+                   <tbody>
+                   <tr v-for='p in orders'>
+                       <td>{{p.id}}</td>
+                       <td>{{p.price}}</td>
+                       <td>{{p.date}}</td>
+                       <td>{{p.train}}</td>
+                       <td>{{p.start}}</td>
+                       <td>{{p.stop}}</td>
+                       <td>{{p.seat}}</td>
+                   </tr>
+                   </tbody>
+               </table>
+           </div>
+
+
+
+    </div>
+    <!--管理界面-->
+    <div v-if="is_user==2">
+        <input type="button" value="退出登录" @click="return_to_login" class="button" style="position:absolute; left:100px; top:50px;">
+        <input type="button" value="用户管理" @click="op_user();list_user()"  class="button" style="position:absolute; left:300px; top:50px;">
+        <input type="button" value="订单管理" @click="op_order();list_order()" class="button" style="position:absolute; left:500px; top:50px;">
+        <input type="button" value="车次管理" @click="op_train" class="button" style="position:absolute; left:700px; top:50px;">
+        <input type="button" value="车站管理" @click="op_station" class="button" style="position:absolute; left:900px; top:50px;">
+            <div v-if="mode==4">
+                <input name="op_user_id"  v-model="op_user_id" class="text" style="position:absolute; left:100px; top:150px;">
+                <input type="button" value="变更权限" @click="change_type" class="button" style="position:absolute; left:350px; top:140px;">
+                <input type="button" value="删除用户" @click="delete_user" class="button" style="position:absolute; left:540px; top:140px;">
+                <table class="table" style="position:absolute; left:50px; top:240px;">
+                    <thead class="thead">
+                    <tr>
+                        <td>用户ID</td>
+                        <td>是否为管理员</td>
+                        <td>身份证号码</td>
+                        <td>手机号码</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for='p in users'>
+                        <td>{{p.id}}</td>
+                        <td>{{p.ad}}</td>
+                        <td>{{p.idcard}}</td>
+                        <td>{{p.phone}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-if="mode==5">
+                <input name="op_order_id"  v-model="op_order_id" class="text" style="position:absolute; left:100px; top:150px;">
+                <input type="button" value="删除订单" @click="ad_delete_order" class="button" style="position:absolute; left:350px; top:140px;">
+                <table class="table" style="position:absolute; left:50px; top:240px;">
+                    <thead class="thead">
+                    <tr>
+                        <td>订单ID</td>
+                        <td>订单价格</td>
+                        <td>用户ID</td>
+                        <td>创建日期</td>
+                        <td>订单列车</td>
+                        <td>出发站</td>
+                        <td>到达站</td>
+                        <td>订单座位</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for='p in all_orders'>
+                        <td>{{p.id}}</td>
+                        <td>{{p.price}}</td>
+                        <td>{{p.user}}</td>
+                        <td>{{p.date}}</td>
+                        <td>{{p.train}}</td>
+                        <td>{{p.dstation}}</td>
+                        <td>{{p.astation}}</td>
+                        <td>{{p.type}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-if="mode==6">
+                <input name="op_train_name"  v-model="op_train_name" class="text" style="position:absolute; left:100px; top:150px;">
+                <input type="button" value="删除车次" @click="ad_delete_train" class="button" style="position:absolute; left:350px; top:140px;">
+                <div>
+                <input name="add_train_name"  v-model="add_train_name" class="text" style="position:absolute; left:100px; top:270px;">
+                <input name="add_depart_station"  v-model="add_depart_station" class="text" style="position:absolute; left:100px; top:345px;">
+                <input name="add_arrival_station"  v-model="add_arrival_station" class="text" style="position:absolute; left:100px; top:420px;">
+                <input name="add_depart_time"  v-model="add_depart_time" class="text" style="position:absolute; left:100px; top:495px;">
+                <input name="add_arrival_time"  v-model="add_arrival_time" class="text" style="position:absolute; left:100px; top:570px;">
+                <input name="add_train_type"  v-model="add_train_type" class="text" style="position:absolute; left:100px; top:645px;">
+                <input name="add_service_type"  v-model="add_service_type" class="text" style="position:absolute; left:100px; top:720px;">
+                <input type="button" value="增加车次" @click="add_train" class="button" style="position:absolute; left:350px; top:260px;">
+            </div>
+            </div>
+            <div v-if="mode==7">
+                <input name="op_train_name"  v-model="op_station_name" class="text" style="position:absolute; left:100px; top:150px;">
+                <input type="button" value="删除车站" @click="ad_delete_station" class="button" style="position:absolute; left:350px; top:140px;">
+                <div>
+                    <input name="add_station_id"  v-model="add_station_id" class="text" style="position:absolute; left:100px; top:270px;">
+                    <input name="add_station_name"  v-model="add_station_name" class="text" style="position:absolute; left:100px; top:345px;">
+                    <input name="add_station_code"  v-model="add_station_code" class="text" style="position:absolute; left:100px; top:420px;">
+                    <input name="add_station_pinyin"  v-model="add_station_pinyin" class="text" style="position:absolute; left:100px; top:495px;">
+                    <input name="add_station_letter"  v-model="add_station_letter" class="text" style="position:absolute; left:100px; top:570px;">
+                    <input name="add_station_pinyin_code"  v-model="add_station_pinyin_code" class="text" style="position:absolute; left:100px; top:645px;">
+                    <input name="add_station_longitude"  v-model="add_station_longitude" class="text" style="position:absolute; left:100px; top:720px;">
+                    <input name="add_station_latitude"  v-model="add_station_latitude" class="text" style="position:absolute; left:100px; top:795px;">
+                    <input type="button" value="增加车站" @click="add_station" class="button" style="position:absolute; left:350px; top:260px;">
+            </div>
+    </div>
+</div>
+    <!--注册界面-->
+    <div v-if="is_user==3">
+        <input name="re_id"  v-model="re_id" class="text" style="position:absolute; left:550px; top:150px;">
+        <input name="re_pw"  v-model="re_pw" class="text" style="position:absolute; left:550px; top:250px;">
+        <input name="re_idcard"  v-model="re_idcard" class="text" style="position:absolute; left:550px; top:350px;">
+        <input name="re_phone"  v-model="re_phone" class="text" style="position:absolute; left:550px; top:450px;">
+        <input type="button" value="确认" @click="submit();return_to_login()" class="button" style="position:absolute; left:606px; top:550px;">
+    </div>
+</div>
+<script >
+    var app = new Vue({
+        el: '#app',
+        data: {
+            re_id:'用户账号',
+            re_pw:'用户密码',
+            re_idcard:'用户身份证号',
+            re_phone:'用户手机号',
+            add_station_id: '车站ID',
+            add_station_name: '车站名',
+            add_station_code: '车站编码',
+            add_station_pinyin: '车站拼音',
+            add_station_letter: '车站首字母',
+            add_station_pinyin_code: '车站拼音码',
+            add_station_longitude: '车站经度',
+            add_station_latitude: '车站纬度',
+            add_train_name: '车次名字',
+            add_depart_station: '始发站',
+            add_arrival_station: '到达站',
+            add_depart_time: '始发时间',
+            add_arrival_time: '到达时间',
+            add_train_type: '车次类型',
+            add_service_type: '服务类型',
+            op_station_name: '要删除的车站名',
+            op_train_name: '要删除的车次名',
+            op_user_id: '要删除的用户ID',
+            op_order_id: '要删除的订单ID',
+            delete_num: '要退订的订单号',
+            shit: 'zty',
+            is_user: '0',
+            user_id: '',
+            password: '',
+            start_station: '始发站',
+            stop_station: '到达站',
+            mode: '0',
+            temp: new Array(),
+            temp2:new Array(),
+            temp3:new Array(),
+            temp4:new Array(),
+            temp5:new Array(),
+            orders: new Array(),
+            trains: new Array(),
+            detail: new Array(),
+            users: new Array(),
+            all_orders: new Array(),
+            way: '排序方式',
+            seat_type: '购买的座位类型',
+            train_num: "查询的车次号"
+        },
+        methods: {
+            register(){
+                this.is_user = 3;
+                this.re_id='用户账号';
+                this.re_pw='用户密码';
+                this.re_idcard='用户身份证号';
+                this.re_phone='用户手机号';
+            },
+            submit() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/add_user?a='+ this.re_id + '&b=' + this.re_pw + '&c=' + this.re_idcard + '&d='+this.re_phone)
+                    .then(response => (this.is_user = response.data)
+                    )
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            async login() {
+                var that = this;
+                await axios
+                    .get('http://localhost:8081/demo/param/req?a=' + this.user_id + '&pw=' + this.password)
+                    .then(response => (this.is_user = response.data)
+                    )
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                // if (response.data<1){
+                //     alert('登陆失败')
+                // } else {
+                //     alert('登陆成功')
+                // }
+
+
+            },
+            chache() {
+                this.mode = 1;
+                this.start_station= '始发站';
+                this.stop_station= '到达站';
+                this.way = '排序方式';
+                this.train_num = "查询的车次号";
+                this.trains = new Array();
+            },
+            async chadanzi(){
+                var that = this;
+                await axios
+                    .get('http://localhost:8081/demo/param/order/' + this.user_id)
+                    .then(function (response) {
+                            that.temp = response.data;
+                        }
+                    )
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                this.delete_num = '要退订的订单号';
+                this.mode = 2;
+                var that = this;
+                console.log(this.temp);
+                var a = this.temp.length/7;
+                // console.log('长度'+this.temp.length);
+                // console.log('a='+a)
+                that.orders = new Array(a);
+                for (i = 0; i < a; i++) {
+                    order=new Object();
+                    order.id=this.temp[7*i];
+                    order.price=this.temp[7*i+1];
+                    order.date=this.temp[7*i+2];
+                    order.train=this.temp[7*i+3];
+                    order.start = this.temp[7*i+4];
+                    order.stop = this.temp[7*i+5];
+                    order.seat = this.temp[7*i+6];
+                    this.orders[i] = order;
+                }
+                console.log(this.orders);
+            },
+            return_to_login() {
+                this.is_user = 0;
+                this.mode = 0;
+                this.user_id = '';
+                this.password = '';
+            },
+            return_to_user() {
+                this.mode = 0;
+            },
+            op_user() {
+                this.mode = 4;
+                this.op_user_id = '要删除的用户ID';
+            },
+            op_order() {
+                this.mode = 5;
+                this.op_order_id='要删除的订单ID';
+            },
+            op_train() {
+                this.mode = 6;
+                this.op_train_name='要删除的车次名';
+                this.add_train_name='车次名字';
+                this.add_depart_station='始发站';
+                this.add_arrival_station='到达站';
+                this.add_depart_time ='始发时间';
+                this.add_arrival_time='到达时间';
+                this.add_train_type='车次类型';
+                this.add_service_type='服务类型';
+            },
+            op_station() {
+                this.mode = 7;
+                this.op_station_name='要删除的车站名';
+                this.add_station_id='车站ID';
+                this.add_station_name='车站名';
+                this.add_station_code='车站编码';
+                this.add_station_pinyin ='车站拼音';
+                this.add_station_letter='车站首字母';
+                this.add_station_pinyin_code='车站拼音码';
+                this.add_station_longitude='车站精度';
+                this.add_station_latitude='车站纬度';
+            },
+            async train_detail() {
+                this.mode = 3;
+                var that = this;
+                await axios
+                    .get('http://localhost:8081/demo/param/train_detail?train_num=' + this.train_num + '&depart_station=' + this.start_station + '&arrival_station=' + this.stop_station)
+                    .then(function (response) {
+                            that.temp3 = response.data;
+                        console.log(response);
+                        }
+                    )
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                info = new Object();
+                info.train = that.temp3[0];
+                info.from = that.temp3[1];
+                info.to = that.temp3[2];
+                info.line = that.temp3[3];
+                info.type1 = that.temp3[4];
+                info.price1 = that.temp3[5];
+                info.num1 = that.temp3[6];
+                info.type2 = that.temp3[7];
+                info.price2 = that.temp3[8];
+                info.num2 = that.temp3[9];
+                info.type3 = that.temp3[10];
+                info.price3 = that.temp3[11];
+                info.num3 = that.temp3[12];
+                that.detail = new Array(1);
+                that.detail[0] = info;
+                console.log(that.detail)
+            },
+            delete_order() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/delete_order/' + this.delete_num)
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                alert('已退订该车票')
+            },
+            async find_train() {
+                var that = this;
+                await axios
+                    .get('http://localhost:8081/demo/param/find_train?a=' + this.way + '&depart_station=' + this.start_station + '&arrival_station=' + this.stop_station)
+                    .then(function (response) {
+                            that.temp2 = response.data;
+                        }
+                    )
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                var a = that.temp2.length/6;
+                console.log(that.temp2)
+                that.trains = new Array(a);
+                for (i = 0; i < a; i++) {
+                    train=new Object();
+                    train.name=this.temp2[6*i];
+                    train.type=this.temp2[6*i+1];
+                    train.dname=this.temp2[6*i+2];
+                    train.dtime=this.temp2[6*i+3];
+                    train.aname = this.temp2[6*i+4];
+                    train.atime = this.temp2[6*i+5];
+                    this.trains[i] = train;
+                }
+                console.log(this.trains);
+            },
+            test() {
+                console.log(this.detail);
+            },
+            buy() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/buy?user_id=' + this.user_id + '&train_num=' + this.train_num + '&type=' + this.seat_type + '&station_depart=' + this.start_station + '&station_arrival=' + this.stop_station)
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                alert('已购买该车票')
+            },
+            async list_user() {
+                var that = this;
+                await axios
+                    .get('http://localhost:8081/demo/param/list_user')
+                    .then(function (response) {
+                            that.temp4 = response.data;
+                        }
+                    )
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                var a = that.temp4.length/4;
+                console.log(that.temp4)
+                that.users = new Array(a);
+                for (i = 0; i < a; i++) {
+                    user=new Object();
+                    user.id=this.temp4[4*i];
+                    user.ad=this.temp4[4*i+1];
+                    user.idcard=this.temp4[4*i+2];
+                    user.phone=this.temp4[4*i+3];
+                    this.users[i] = user;
+                }
+                console.log(this.users);
+            },
+            change_type() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/switch_user/' + this.op_user_id)
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                alert('已变更该用户的用户类型')
+            },
+            delete_user() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/delete_user/' + this.op_user_id)
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                alert('成功删除该用户')
+            },
+            async list_order() {
+                var that = this;
+                await axios
+                    .get('http://localhost:8081/demo/param/list_order')
+                    .then(function (response) {
+                            that.temp5 = response.data;
+                        }
+                    )
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                var a = that.temp5.length/8;
+                console.log(that.temp5)
+                that.all_orders = new Array(a);
+                for (i = 0; i < a; i++) {
+                    all_order=new Object();
+                    all_order.id=this.temp5[8*i];
+                    all_order.price=this.temp5[8*i+1];
+                    all_order.user=this.temp5[8*i+2];
+                    all_order.date=this.temp5[8*i+3];
+                    all_order.train=this.temp5[8*i+4];
+                    all_order.dstation=this.temp5[8*i+5];
+                    all_order.astation=this.temp5[8*i+6];
+                    all_order.type=this.temp5[8*i+7];
+                    this.all_orders[i] = all_order;
+                }
+                console.log(this.all_orders);
+            },
+            ad_delete_order() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/delete_order/' + this.op_order_id)
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                alert('成功删除该订单')
+            },
+            ad_delete_train() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/delete_train/' + this.op_train_name)
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                alert('成功删除改车次')
+            },
+            add_train() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/add_train?train_name=' + this.add_train_name + '&depart_station=' + this.add_depart_station + '&arrival_station=' + this.add_arrival_station + '&depart_time=' + this.add_depart_time + '&arrival_time=' + this.add_arrival_time + '&train_type=' + this.add_train_type + '&service_type=' + this.add_service_type)
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                alert('成功添加改车次')
+            },
+            ad_delete_station() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/delete_station/' + this.op_station_name)
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                alert('成功删除该站点')
+            },
+            add_station() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/add_station?station_id=' + this.add_station_id + '&station_name=' + this.add_station_name + '&station_code=' + this.add_station_code + '&station_pinyin=' + this.add_station_pinyin + '&station_letter=' + this.add_station_letter + '&station_pinyin_code=' + this.add_station_pinyin_code + '&station_longitude=' + this.add_station_longitude + '&station_latitude=' + this.add_station_latitude)
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+                alert('成功添加站点')
+            },
+            fixa() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/fix?a='+this.start_station+'&b='+this.train_num)
+                    .then(function (response) {
+                            that.start_station = response.data;
+                        }
+                    )
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            fixb() {
+                var that = this;
+                axios
+                    .get('http://localhost:8081/demo/param/fix?a='+this.stop_station+'&b='+this.train_num)
+                    .then(function (response) {
+                            that.stop_station = response.data;
+                        }
+                    )
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            }
+
+
+        }
+
+    })
+
+</script>
+</body>
+</html>
+
